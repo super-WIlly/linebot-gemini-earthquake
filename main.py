@@ -77,11 +77,13 @@ async def handle_callback(request: Request):
     body = await request.body()
     body = body.decode()
 
+    # 例外處理 try except，透過raise以確保能夠知道Invalid signature錯誤
     try:
         events = parser.parse(body, signature)
     except InvalidSignatureError:
         raise HTTPException(status_code=400, detail="Invalid signature")
 
+    
     for event in events:
         logging.info(event)
         if not isinstance(event, MessageEvent):
