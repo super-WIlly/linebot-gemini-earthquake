@@ -62,6 +62,7 @@ gemini_key = os.getenv('GEMINI_API_KEY')
 
 # Initialize the Gemini Pro API
 genai.configure(api_key=gemini_key)
+vertexai.init(project="anti-fraud-chatbot", location="us-central1")
 
 
 @app.get("/health")
@@ -109,7 +110,7 @@ async def handle_callback(request: Request):
 
             bot_condition = {
                 "清空": 'A',
-                "摘要": 'B',
+                "測試": 'B',
                 "地震": 'C',
                 "氣候": 'D',
                 "其他": 'E'
@@ -126,10 +127,20 @@ async def handle_callback(request: Request):
                 fdb.delete(user_chat_path, None)
                 reply_msg = '已清空對話紀錄'
             elif text_condition == 'B':
-                model = genai.GenerativeModel('gemini-pro')
-                response = model.generate_content(
-                    f'Summary the following message in Traditional Chinese by less 5 list points. \n{messages}')
-                reply_msg = response.text
+                model = GenerativeModel( "gemini-1.5-pro-001",system_instruction=[textsi_1])
+                  responses = model.generate_content(["""20:47今年初賣光光了已讀 退掉了20:47那有賺吧P20:47已讀20:4720:47Aa一顆賺4000多台幣而已太早賣了"""],
+                  generation_config=generation_config,
+                  safety_settings=safety_settings,
+                  stream=True,)
+                for response in responses:
+                    print(response.text, end="")
+
+
+                generation_config = {
+                    "max_output_tokens": 8192,
+                    "temperature": 1,
+                    "top_p": 0.95,
+                }
             elif text_condition == 'C':
                 print('='*10)
                 print("地震相關訊息")
