@@ -54,7 +54,10 @@ parser = WebhookParser(channel_secret)
 import google.generativeai as genai
 from firebase import firebase
 from utils import check_image_quake, check_location_in_message, get_current_weather, get_weather_data, simplify_data
-
+import base64
+import vertexai
+from vertexai.generative_models import GenerativeModel, Part, FinishReason
+import vertexai.preview.generative_models as generative_models
 
 firebase_url = os.getenv('FIREBASE_URL')
 gemini_key = os.getenv('GEMINI_API_KEY')
@@ -127,51 +130,9 @@ async def handle_callback(request: Request):
                 fdb.delete(user_chat_path, None)
                 reply_msg = '已清空對話紀錄'
             elif text_condition == 'B':
-                model = GenerativeModel( "gemini-1.5-pro-001",system_instruction=["""###Context
-你是一個較柔性且生活化的個性的人，會引導使用者去更了解對話流程進展，作為老鳥提供使用者可以更快入門的方式。相對於提供使用者一個確定的結果，你會提供事實查核的流程，來達到防詐跟雙方保障的目的。如果對方立意良善，也不會阻礙雙方合作。
-
-###Objective
-有三個主要功能：
-1. 在接收到使用者分享的訊息後，會先用你的LLM來做一個基礎的事實核查，告訴使用者這是否符合常理，如果不符合也請提供原因，提供法規支持，以及可以參考的網址。
-2. 在第一步之後，避免使用者的盲點，讓使用者不會因為”不知道”而發生後續問題，提供可以進一步讓使用者問的問題，讓使用者能與對方的談話具有安全性。
-3. 使用者告訴你想要問對方甚麼，可以先提供目前公開資源的質量化參考資料，給使用者一個參考的依據，並且幫使用者包裝問題，使用者可能會輸入相對模糊的資訊，你會協助問題變得精確。
-
-###Style
-輕鬆且生活化的風格，以便使用者快速理解和應用。
-
-###Tone
-友善、支持性、鼓勵合作和理解。
-
-###Audience
-任何尋求幫助避免詐騙和確保交流安全的使用者。
-
-###Task Definition
-確保在回應使用者時，始終遵循事實核查的流程，避免引導使用者做出可能不安全或不符合法規的行為。
-
-###Output Format
-以文本形式回應，包括對使用者提出的問題進行解釋和建議的詳細說明。提供具體的法律支持和公開資源來源，確保信息的可靠性。
-
-###Guardrails
-避免提供不實或模糊的信息。
-不要促使使用者採取可能不符合法規或安全的行動。
-確保所有建議和信息基於可靠的公開資源和法律支持。
-
-###Example
-User: 我正在找房子租，但不確定要問房東些什麼才好，可以幫我看看嗎？
-Assistant: 當然可以！你目前租房的進度是什麼？例如，你已經看過房子了嗎？還是正在選擇中？
-User: 我已經看了幾間房子，但是不太了解該問什麼。
-Assistant: 好的，第一步是確保房東提供的資訊是真實的。你可以問房東關於房租的合理性，例如該地區的市場價格是多少。我可以幫你將問題包裝得更精確，你是否需要幫助？"""])
-                  responses = model.generate_content(["""20:47今年初賣光光了已讀 退掉了20:47那有賺吧P20:47已讀20:4720:47Aa一顆賺4000多台幣而已太早賣了"""],
-                  generation_config=generation_config,
-                  safety_settings=safety_settings,
-                  stream=True,)
-                for response in responses:
-                    print(response.text, end="")
-                generation_config = {
-                    "max_output_tokens": 8192,
-                    "temperature": 1,
-                    "top_p": 0.95,
-                }
+                model = GenerativeModel(gemini-1.5-pro-001)
+                response = model.generate_content("Write a story about a magic backpack.")
+                print(response)
             elif text_condition == 'C':
                 print('='*10)
                 print("地震相關訊息")
