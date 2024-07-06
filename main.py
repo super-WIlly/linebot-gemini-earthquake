@@ -54,10 +54,7 @@ parser = WebhookParser(channel_secret)
 import google.generativeai as genai
 from firebase import firebase
 from utils import check_image_quake, check_location_in_message, get_current_weather, get_weather_data, simplify_data
-import base64
-import vertexai
-from vertexai.generative_models import GenerativeModel, Part, FinishReason
-import vertexai.preview.generative_models as generative_models
+
 
 firebase_url = os.getenv('FIREBASE_URL')
 gemini_key = os.getenv('GEMINI_API_KEY')
@@ -65,7 +62,6 @@ gemini_key = os.getenv('GEMINI_API_KEY')
 
 # Initialize the Gemini Pro API
 genai.configure(api_key=gemini_key)
-vertexai.init(project="anti-fraud-chatbot", location="us-central1")
 
 
 @app.get("/health")
@@ -113,7 +109,7 @@ async def handle_callback(request: Request):
 
             bot_condition = {
                 "清空": 'A',
-                "測試": 'B',
+                "摘要": 'B',
                 "地震": 'C',
                 "氣候": 'D',
                 "其他": 'E'
@@ -130,9 +126,10 @@ async def handle_callback(request: Request):
                 fdb.delete(user_chat_path, None)
                 reply_msg = '已清空對話紀錄'
             elif text_condition == 'B':
-                model = GenerativeModel(gemini-1.5-pro-001)
-                response = model.generate_content("Write a story about a magic backpack.")
-                print(response)
+                model = genai.GenerativeModel('gemini-pro')
+                response = model.generate_content(
+                    f'Summary the following message in Traditional Chinese by less 5 list points. \n{messages}')
+                reply_msg = response.text
             elif text_condition == 'C':
                 print('='*10)
                 print("地震相關訊息")
