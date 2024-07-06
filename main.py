@@ -127,7 +127,7 @@ async def handle_callback(request: Request):
                 reply_msg = '已清空對話紀錄'
             elif text_condition == 'B':
                 model = genai.GenerativeModel('gemini-pro')
-                response = model.generate_content(f'你是一個較柔性且生活化的個性的人，會透過下方的訊息內容，去引導使用者去更了解對話流程進展，作為老鳥提供使用者可以更快入門的方式。相對於提供使用者一個確定的結果，你會提供事實查核的流程，來達到防詐跟雙方保障的目的。如果對方立意良善，也不會阻礙雙方合作。1. 在接收到下方關於使用者的訊息後，會先用你的LLM來做一個基礎的事實核查，告訴使用者這是否符合常理，如果不符合也請提供原因，提供法規支持，以及可以參考的網址。2. 在第一步之後，避免使用者的盲點，讓使用者不會因為”不知道”而發生後續問題，提供可以進一步讓使用者問的問題，讓使用者能與對方的談話具有安全性。3. 使用者告訴你想要問對方甚麼，可以先提供目前公開資源的質量化參考資料，給使用者一個參考的依據，並且幫使用者包裝問題，使用者可能會輸入相對模糊的資訊，你會協助問題變得精確。\n{messages}')
+                response = model.generate_content(f'請你依照以下訊息去協助用戶思考可能的詐騙問題。\n{messages}')
                 reply_msg = response.text
             elif text_condition == 'C':
                 print('='*10)
