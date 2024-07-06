@@ -54,10 +54,7 @@ parser = WebhookParser(channel_secret)
 import google.generativeai as genai
 from firebase import firebase
 from utils import check_image_quake, check_location_in_message, get_current_weather, get_weather_data, simplify_data
-import base64
-import vertexai
-from vertexai.generative_models import GenerativeModel, Part, FinishReason
-import vertexai.preview.generative_models as generative_models
+
 
 firebase_url = os.getenv('FIREBASE_URL')
 gemini_key = os.getenv('GEMINI_API_KEY')
@@ -80,13 +77,11 @@ async def handle_callback(request: Request):
     body = await request.body()
     body = body.decode()
 
-    # 例外處理 try except，透過raise以確保能夠知道Invalid signature錯誤
     try:
         events = parser.parse(body, signature)
     except InvalidSignatureError:
         raise HTTPException(status_code=400, detail="Invalid signature")
 
-    
     for event in events:
         logging.info(event)
         if not isinstance(event, MessageEvent):
@@ -164,13 +159,13 @@ async def handle_callback(request: Request):
                     f'你現在身處在台灣，相關資訊 {total_info}，我朋友說了「{text}」，請問是否有誇張、假裝的嫌疑？ 回答是或否。')
                 reply_msg = response.text
             else:
-            # model = genai.GenerativeModel('gemini-pro')
-            messages.append({'role': 'user', 'parts': [text]})
-            response = model.generate_content(messages)
-            messages.append({'role': 'model', 'parts': [text]})
-            # 更新firebase中的對話紀錄
-            fdb.put_async(user_chat_path, None, messages)
-            reply_msg = response.text
+                # model = genai.GenerativeModel('gemini-pro')
+                messages.append({'role': 'user', 'parts': [text]})
+                response = model.generate_content(messages)
+                messages.append({'role': 'model', 'parts': [text]})
+                # 更新firebase中的對話紀錄
+                fdb.put_async(user_chat_path, None, messages)
+                reply_msg = response.text
 
             await line_bot_api.reply_message(
                 ReplyMessageRequest(
