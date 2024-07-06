@@ -55,7 +55,7 @@ parser = WebhookParser(channel_secret)
 import google.generativeai as genai
 from firebase import firebase
 from utils import check_image_quake, check_location_in_message, get_current_weather, get_weather_data, simplify_data
-
+from langchain_google_vertexai import ChatVertexAI
 
 firebase_url = os.getenv('FIREBASE_URL')
 gemini_key = os.getenv('GEMINI_API_KEY')
@@ -63,6 +63,7 @@ gemini_key = os.getenv('GEMINI_API_KEY')
 
 # Initialize the Gemini Pro API
 genai.configure(api_key=gemini_key)
+
 
 
 @app.get("/health")
@@ -127,9 +128,23 @@ async def handle_callback(request: Request):
                 fdb.delete(user_chat_path, None)
                 reply_msg = '已清空對話紀錄'
             elif text_condition == 'B':
-                model = genai.GenerativeModel('gemini-pro')
-                response = model.generate_content(f'請你依照以下訊息去協助用戶思考可能的詐騙問題。\n{messages}')
-                reply_msg = response.text
+                llm = ChatVertexAI(
+                    model="gemini-1.5-flash-001",
+                    temperature=0,
+                    max_tokens=None,
+                    max_retries=6,
+                    stop=None,
+                    # other params...
+                )
+                messages = [
+                    (
+                        "system",
+                        "You are a helpful assistant that translates English to French. Translate the user sentence.",
+                    ),
+                    ("human", "I love programming."),
+                ]
+                ai_msg = llm.invoke(messages)
+                print(ai_msg.content)
             elif text_condition == 'C':
                 print('='*10)
                 print("地震相關訊息")
