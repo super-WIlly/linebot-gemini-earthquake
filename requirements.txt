@@ -7,3 +7,4 @@ pillow
 requests
 git+https://github.com/ozgur/python-firebase
 google-cloud-aiplatform>=1.38
+langchain-google-vertexai
