@@ -2,6 +2,7 @@ import logging
 import os
 import re
 import sys
+os.environ['GOOGLE_APPLICATION_CREDENTIALS']= 'anti-fraud-chatbot-b533626d47ba.json'
 if os.getenv('API_ENV') != 'production':
     from dotenv import load_dotenv
 
